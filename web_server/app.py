@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+import time
 # import serial
 
 app = Flask(__name__)
@@ -12,6 +13,9 @@ def index():
         
         # Send over serial
         # ser.write(f"{times_per_day}, {amount_per_time}\n".encode())\
+        with open('params.txt', 'w') as file:
+            file.write(f"{times_per_day}, {amount_per_time}\n")
+
         print(times_per_day, amount_per_time)
 
     return render_template('index.html')
