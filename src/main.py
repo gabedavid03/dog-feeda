@@ -1,4 +1,19 @@
 import cv2
+import time
+
+def isValid(detection): 
+    detection_start_time = 0 
+    detection_threshold = 5 #this is seconds 
+    detection_valid = False 
+    if detection: 
+        if detection_start_time == 0: 
+            detection_start_time = time.time()
+        elif time.time() - detection_start_time >= detection_threshold: 
+            detection_valid = True 
+    else: 
+        detection_start_time = 0
+        detection_valid = False
+    return detection_valid 
 
 #opencv DNN
 net = cv2.dnn.readNet("dnn_model/yolov4-tiny.weights", "dnn_model/yolov4-tiny.cfg")
@@ -31,6 +46,8 @@ while True:
         if class_name == "dog":
             cv2.putText(frame, str(class_name), (x,y-5), cv2.FONT_HERSHEY_PLAIN, 1, (200,0,50), 2)
             cv2.rectangle(frame, (x, y), (x+w, y+h), (200,0,50), 3)
+            dog_detected = True
+            print(isValid(dog_detected))
 
     print("class ids", class_ids)
     print("score", score)
@@ -43,5 +60,6 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
 
 
