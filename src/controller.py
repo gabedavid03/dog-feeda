@@ -12,8 +12,9 @@ def retrieve_cycles() -> float:
 def validate_feed() -> bool:
     return
 
-def send_feed(cycles: float, comport: str):
-    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=2)
+def send_feed(comport: str):
+    cycles = retrieve_cycles()
+    ser = serial.Serial(comport, 9600, timeout=2)
     time.sleep(2)
     ser.write(f"{cycles}\n".encode('utf-8'))
     i=0
@@ -27,6 +28,3 @@ def send_feed(cycles: float, comport: str):
     line = ser.readline().decode('utf-8').rstrip()
     print(f"{line}")
     return
-
-param = retrieve_cycles()
-send_feed(cycles=param, comport='/dev/ttyACM0')

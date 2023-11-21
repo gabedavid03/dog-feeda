@@ -1,5 +1,6 @@
 import cv2
 import time
+from controller import send_feed
 
 def isValid(detection): 
     detection_start_time = time.time()
@@ -14,8 +15,7 @@ def isValid(detection):
             if  stopwatch >= detection_threshold: 
                 detection_valid = True 
                 print(f"DAWG_STATUS: {detection_valid}")
-                cap.release()
-                cv2.destroyAllWindows()
+                send_feed('/dev/ttyACM0')
                 break
             else: 
                 print(f"DAWG_STATUS: {detection_valid}")
@@ -57,12 +57,12 @@ while True:
             dog_detected = True
             isValid(dog_detected)
 
-    # print("class ids", class_ids)
-    # print("score", score)
-    # print("bboxes", bboxes)
+    print("class ids", class_ids)
+    print("score", score)
+    print("bboxes", bboxes)
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1)
-    # print(key)
+    print(key)
     if key == 113:
         break
 
