@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-import time
+import json
 # import serial
 
 app = Flask(__name__)
@@ -8,15 +8,21 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST': 
-        times_per_day = request.form.get('times_per_day')
-        amount_per_time = request.form.get('amount_per_time')
+        feeds_per_day = request.form.get('times_per_day')
+        amount_per_feed = request.form.get('amount_per_time')
         
         # Send over serial
         # ser.write(f"{times_per_day}, {amount_per_time}\n".encode())\
-        with open('params.txt', 'w') as file:
-            file.write(f"{times_per_day}, {amount_per_time}\n")
+        with open('params.json', 'r') as file:
+            try:
+                params = json.load(file)
+            except json.JSONDecodeError:
+                params = {}
+            params['FEEDS_PER_DAY'] = feeds_per_day
+            params['AMOUNT_PER_FEED'] = amount_per_feed
 
-        print(times_per_day, amount_per_time)
+        with open('params.json', 'w') as file:
+            json.dump(params, file, indent=4)        
 
     return render_template('index.html')
 
