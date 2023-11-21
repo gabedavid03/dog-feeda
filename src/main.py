@@ -2,19 +2,27 @@ import cv2
 import time
 
 def isValid(detection): 
-    detection_start_time = 0 
-    detection_threshold = 5 #this is seconds 
+    detection_start_time = time.time()
+    detection_threshold = 2 #this is seconds you want to wait until dawg detected 
     detection_valid = False 
-    if detection: 
-        if detection_start_time == 0: 
-            detection_start_time = time.time()
-        elif time.time() - detection_start_time >= detection_threshold: 
-            detection_valid = True 
-    else: 
-        detection_start_time = 0
-        detection_valid = False
-    return detection_valid 
-
+    print(f"MAMA WE MADE IT")
+    while(1):
+        if detection: 
+            time.sleep(3) # buffer to get the detection_start_time to catch up to threshold 
+            stopwatch = time.time() - detection_start_time
+            print(f"{stopwatch}")
+            if  stopwatch >= detection_threshold: 
+                detection_valid = True 
+                print(f"DAWG_STATUS: {detection_valid}")
+                cap.release()
+                cv2.destroyAllWindows()
+                break
+            else: 
+                print(f"DAWG_STATUS: {detection_valid}")
+                detection_start_time = 0
+                detection_valid = False 
+                break     
+   
 #opencv DNN
 net = cv2.dnn.readNet("dnn_model/yolov4-tiny.weights", "dnn_model/yolov4-tiny.cfg")
 model = cv2.dnn_DetectionModel(net)
@@ -47,19 +55,17 @@ while True:
             cv2.putText(frame, str(class_name), (x,y-5), cv2.FONT_HERSHEY_PLAIN, 1, (200,0,50), 2)
             cv2.rectangle(frame, (x, y), (x+w, y+h), (200,0,50), 3)
             dog_detected = True
-            print(isValid(dog_detected))
+            isValid(dog_detected)
 
-    print("class ids", class_ids)
-    print("score", score)
-    print("bboxes", bboxes)
+    # print("class ids", class_ids)
+    # print("score", score)
+    # print("bboxes", bboxes)
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1)
-    print(key)
+    # print(key)
     if key == 113:
         break
 
-cap.release()
-cv2.destroyAllWindows()
-
-
+# cap.release()
+# cv2.destroyAllWindows()
 
