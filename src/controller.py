@@ -6,11 +6,11 @@ import pytz
 
 COMPORT = '/dev/ttyACM0'
 
-def retrieve_cycles(feed_number) -> float:
+def retrieve_cycles(feed_number: int) -> float:
     with open('../web_server/params.json', 'r') as file:
         params = json.load(file)
         amount_per_feed = params['feeds'][f'{feed_number}']['amount']
-        cycles = int(amount_per_feed*4)
+        cycles = int(amount_per_feed)
         return cycles
 
 def validate_feed_time() -> int:
@@ -41,18 +41,29 @@ def reset_completed() -> None:
         feed['completed'] = 0
     with open('../web_server/params.json', 'w') as file:
         json.dump(params, file, indent=4)
+    return
 
-def autofeed(feed_number) -> None:
+def autofeed(feed_number: int) -> None:
     with open('../web_server/params.json', 'r') as file:
         params = json.load(file)
     if params['feeds'][f'{feed_number}']['completed'] == 0:
         if params['autodispense'] == 1:
-            send_feed(COMPORT, feed_number)
+            cycles  = retrieve_cycles(feed_number)
+            send_feed(COMPORT, cycles)
     else: 
         return
     
-def send_feed(comport: str, feed_number):
-    cycles = retrieve_cycles(feed_number)
+def feed_now() -> None:
+    with open('../web_server/params.json', 'r') as file:
+        params = json.load(file)
+    if params['feed_now']['valid'] == 0:
+        return
+    else:
+        cycles = params['feed_now']['amount']
+        send_feed(COMPORT, cycles)
+        return
+
+def send_feed(comport: str, cycles: float) -> None:
     ser = serial.Serial(comport, 9600, timeout=2)
     time.sleep(2)
     ser.write(f"{cycles}\n".encode('utf-8'))

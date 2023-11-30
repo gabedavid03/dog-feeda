@@ -22,5 +22,11 @@
             "completed": 0
         }
     ],
-    "autodispense": 0
+    "autodispense": 0,
+    "feed_now" : [
+        {
+            "valid" : 0,
+            "amount" : 1
+        }
+    ]
 }
