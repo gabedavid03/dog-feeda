@@ -4,6 +4,8 @@ import time
 import json
 import pytz
 
+COMPORT = '/dev/ttyACM0'
+
 def retrieve_cycles(feed_number) -> float:
     with open('../web_server/params.json', 'r') as file:
         params = json.load(file)
@@ -11,7 +13,7 @@ def retrieve_cycles(feed_number) -> float:
         cycles = int(amount_per_feed*4)
         return cycles
 
-def validate_feed() -> int:
+def validate_feed_time() -> int:
     est = pytz.timezone('America/Toronto')
     utc_now = datetime.utcnow()
     current_time = utc_now.astimezone(est)
@@ -40,8 +42,17 @@ def reset_completed() -> None:
     with open('../web_server/params.json', 'w') as file:
         json.dump(params, file, indent=4)
 
-def send_feed(comport: str):
-    cycles = retrieve_cycles()
+def autofeed(feed_number) -> None:
+    with open('../web_server/params.json', 'r') as file:
+        params = json.load(file)
+    if params['feeds'][f'{feed_number}']['completed'] == 0:
+        if params['autodispense'] == 1:
+            send_feed(COMPORT, feed_number)
+    else: 
+        return
+    
+def send_feed(comport: str, feed_number):
+    cycles = retrieve_cycles(feed_number)
     ser = serial.Serial(comport, 9600, timeout=2)
     time.sleep(2)
     ser.write(f"{cycles}\n".encode('utf-8'))

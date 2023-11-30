@@ -1,6 +1,6 @@
 import cv2
 import time
-from controller import send_feed
+from controller import send_feed, COMPORT
 
 def isValid(detection): 
     detection_start_time = time.time()
@@ -15,7 +15,7 @@ def isValid(detection):
             if  stopwatch >= detection_threshold: 
                 detection_valid = True 
                 print(f"DAWG_STATUS: {detection_valid}")
-                send_feed('/dev/ttyACM0')
+                send_feed(COMPORT, )
                 break
             else: 
                 print(f"DAWG_STATUS: {detection_valid}")
