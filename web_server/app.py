@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 
 app = Flask(__name__)
@@ -46,7 +46,12 @@ def index():
         write_feeds(feeds_data)
         return redirect(url_for('index'))
 
-    return render_template('index.html', feeds=feeds_data['feeds'], autodispense=feeds_data['autodispense'], feed_now=feeds_data.get('feed_now', {'valid': 0, 'amount': 0}))
+    return render_template('index.html', feeds=feeds_data['feeds'], autodispense=feeds_data['autodispense'], feed_now=feeds_data.get('feed_now', {'valid': 0, 'amount': 0}), feeds_today=feeds_data.get('feeds_today', 0))
+
+@app.route('/get_feeds_today', methods=['GET'])
+def get_feeds_today():
+    feeds_data = read_feeds()
+    return jsonify(feeds_today=feeds_data.get('feeds_today', 0))
 
 if __name__ == '__main__':
     app.run(debug=True)

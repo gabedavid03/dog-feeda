@@ -40,6 +40,7 @@ def reset_completed() -> None:
     current_time = utc_now.astimezone(est)
     midnight_str = '24:00'
     midnight = datetime.strptime(midnight_str, "%H:%M").time()
+    
     if current_time == midnight:
         with open('../web_server/params.json', 'r') as file:
             params = json.load(file)

@@ -12,5 +12,6 @@
     "feed_now": {
         "valid": 1,
         "amount": 1.0
-    }
+    },
+    "feeds_today": 3
 }

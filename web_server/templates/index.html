@@ -133,6 +133,27 @@
       </form>
     </div>
 
+        <!-- Panel displaying the number of times fed today with an update button -->
+    <div class="card">
+      <h3>Feeds Today</h3>
+      <div class="panel panel-default">
+        <div class="panel-body">
+          The pet has been fed <strong id="feeds-today">{{ feeds_today }}</strong> time(s) today.
+          <button id="update-feeds-today" class="btn btn-info">Update</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('update-feeds-today').addEventListener('click', function() {
+        fetch('/get_feeds_today')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('feeds-today').textContent = data.feeds_today;
+          });
+      });
+    </script>
+
   </div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
