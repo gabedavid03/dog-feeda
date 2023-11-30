@@ -1,7 +1,9 @@
 import cv2
 import time
 from controller import send_feed, feed_now, reset_completed, autofeed, COMPORT, validate_feed_time, retrieve_cycles
-import time
+from picamera.array import PiRGBArray 
+from picamera import PiCamera 
+import cv2 
 
 
 #opencv DNN variables
@@ -16,32 +18,34 @@ with open("dnn_model/classes.txt", "r") as file_object:
         class_name = class_name.strip()
         classes.append(class_name)
 
-print("object list")
-print(classes)
-#initialize camera
-cap = cv2.VideoCapture(0)
+# initialize PiCamera
+camera = PiCamera()
+camera.resolution = (320, 320)
+camera.framerate = 32
+rawCapture = PiRGBArray(camera, size=(320, 320))
 
-def object_detection() -> None: 
-        #get frames
-    ret, frame = cap.read()
+def object_detection() -> None:
+    for capture in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+        image = capture.array
 
-    #object detection
-    (class_ids, score, bboxes)= model.detect(frame)
-    for class_id, score, bbox in zip(class_ids, score, bboxes):
-        (x, y, w, h) = bbox
-        class_name = classes[class_id]
-        if class_name == "dog":
-            cv2.putText(frame, str(class_name), (x,y-5), cv2.FONT_HERSHEY_PLAIN, 1, (200,0,50), 2)
-            cv2.rectangle(frame, (x, y), (x+w, y+h), (200,0,50), 3)
-            dog_detected = True
-            isValid(dog_detected)
+        # Object detection
+        class_ids, scores, bboxes = model.detect(image)
+        for class_id, score, bbox in zip(class_ids, scores, bboxes):
+            x, y, w, h = bbox
+            class_name = classes[class_id]
+            if class_name == "dog":
+                cv2.putText(image, str(class_name), (x, y-5), cv2.FONT_HERSHEY_PLAIN, 1, (200, 0, 50), 2)
+                cv2.rectangle(image, (x, y), (x + w, y + h), (200, 0, 50), 3)
+                dog_detected = True
+                isValid(dog_detected)
 
-    print("class ids", class_ids)
-    print("score", score)
-    print("bboxes", bboxes)
-    cv2.imshow("Frame", frame)
-    key = cv2.waitKey(1)
-    print(key)
+        cv2.imshow("Frame", image)
+        key = cv2.waitKey(1) & 0xFF
+        rawCapture.truncate(0)
+
+        if key == ord("q"):
+            break
+
     return
 
 def isValid(detection: bool) -> None: 
@@ -66,7 +70,8 @@ def isValid(detection: bool) -> None:
                 print(f"DAWG_STATUS: {detection_valid}")
                 detection_start_time = 0
                 detection_valid = False 
-                break     
+                break 
+    return    
    
 # while loop where all of the code run
 
@@ -78,7 +83,10 @@ def main(args=None) -> None:
         object_detection()
 
 if __name__ == '__main__':
-        try:
-            main()
-        except Exception as e:
-            print(e)
+    try:
+        main()
+    except Exception as e:
+        print(e)
+    finally:
+        camera.close()  # Properly close the camera resource
+        cv2.destroyAllWindows()  # Close all OpenCV windows
