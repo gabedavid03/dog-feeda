@@ -1,19 +1,60 @@
-#include "HX711.h"
+#include <HX711_ADC.h>
 
 #define MOTOR_PIN 1
 #define MOTOR_DIRECTION_PIN 2
 #define HALL_PIN 3
-#define LOADCELL_DOUT 4
-#define LOADCELL_SCK 5
+#define HX711_dout 4
+#define HX711_sck 5
 #define SOLENOID_PIN 6
 
 int motorSpe = 40;
 int motorDir = 0;
 
-HX711 scale;
-long calibration = 0; //need to find this value
+HX711_ADC LoadCell(HX711_dout, HX711_sck); 
 float water_full = 0; //need to set this to desired water level
+unsigned long t = 0; 
+static float water_mass; 
 
+void HX711init(){
+    bool _tare = true;
+    unsigned long stabilizingtime = 2000; 
+    LoadCell.start(stabilizingtime, _tare);
+    if (LoadCell.getTareTimeoutFlag()) {
+      Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
+      while (1);
+  }
+    else {
+      LoadCell.setCalFactor(calibrationValue); // set calibration value (float)
+      Serial.println("Startup is complete");
+  }
+}
+
+void water(){
+  static bool newData = false; 
+  cont int serialPrintInterval = 0; 
+
+  if (LoadCell.update()){
+    newData = true; 
+    water_mass = LoadCekk.getData():
+  }
+
+  if(newData){
+    if (millis() > t + serialPrintInterval){
+      if(water_mass < water_full){
+        digitalWrite(SOLENOID_PIN, LOW);
+        while(water_mass < water_full){
+          if (LoadCell.update()){
+            water_mass = LoadCell.getData(); 
+          }
+        }
+        digitalWrite(SOLENOID_PIN, HIGH);
+      }
+      Serial.print("Load_cell output val: ");
+      Serial.println(water_mass);
+      newData = False;
+      t = millis();
+  }
+}
 
 void feed(int rotations){
   int rotationCount = 0;
@@ -44,9 +85,7 @@ void setup() {
   pinMode(HALL_PIN, INPUT);
   pinMode(SOLENOID_PIN, OUTPUT);
   digitalWrite(SOLENOID_PIN, HIGH); //assuming normally open
-  scale.begin(LOADCELL_DOUT, LOADCELL_SCK);
-  scale.set_scale(calibration);
-  scale.tare(); //setting scale to 0
+  HX711init(); 
 }
 
 void loop() {
@@ -56,13 +95,5 @@ void loop() {
     int feed_rotations = feed_rotations_str.toInt();
     feed(feed_rotations);
   }
-
-  float water_mass = scale.get_units();
-  if(water_mass<water_full){
-    digitalWrite(SOLENOID_PIN, LOW);
-    while(water_mass<water_full){
-      water_mass = scale.get_units();
-    }
-    digitalWrite(SOLENOID_PIN, HIGH);
-  }
+  water(); 
 }
