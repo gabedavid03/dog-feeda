@@ -12,7 +12,7 @@ def retrieve_cycles(feed_number: int) -> float:
         for feed in params['feeds']:
             if feed['feed_number'] == feed_number:
                 amount_per_feed = feed['amount']
-                cycles = int(amount_per_feed)
+                cycles = int(amount_per_feed)*3
                 print(f"{cycles}")
                 return cycles
         print("Feed number not found")
@@ -76,7 +76,7 @@ def autofeed() -> None:
         if current_time == end_time:
             if feed['completed'] == 0:
                 if params['autodispense'] == 1:
-                    cycles  = retrieve_cycles(feed['feed_number'])
+                    cycles  = (retrieve_cycles(feed['feed_number']))*3
                     send_feed(COMPORT, cycles)
             else: 
                 return
