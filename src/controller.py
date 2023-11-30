@@ -63,6 +63,7 @@ def reset_completed() -> None:
 def autofeed() -> None:
     est = pytz.timezone('America/Toronto')
     utc_now = datetime.utcnow()
+    # NEED TO SET TO CURRENT TIME!!!!!!!!
     currentstr = '08:00'
     current_time = datetime.strptime(currentstr, "%H:%M").time()
 
