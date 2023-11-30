@@ -114,6 +114,8 @@ def send_feed(comport: str, cycles: float) -> None:
     with open('../web_server/feeds.json', 'r') as file:
         params = json.load(file)
     params["feeds_today"] = int(params["feeds_today"]) + 1
+    with open('../web_server/feeds.json', 'w') as file:
+        json.dump(params, file, indent=4)
     return
 
 def main(args = None) -> None: 
