@@ -121,6 +121,18 @@
       {% endfor %}
     </div>
 
+        <!-- Feed Now Section -->
+    <div class="card">
+      <h3>Immediate Feed</h3>
+      <form method="post" action="/">
+        <div class="form-group">
+          <label for="feed_now_amount">Amount to Feed Now (cups)</label>
+          <input type="number" class="form-control" id="feed_now_amount" name="feed_now_amount" step="0.1" required>
+        </div>
+        <button type="submit" name="feed_now" class="btn btn-warning">Feed Now</button>
+      </form>
+    </div>
+
   </div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

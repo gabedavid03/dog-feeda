@@ -35,12 +35,18 @@ def index():
             feed_number_to_delete = int(request.form.get('delete'))
             feeds_data['feeds'] = [feed for feed in feeds_data['feeds'] if feed['feed_number'] != feed_number_to_delete]
 
+        elif 'feed_now' in request.form:
+                    feeds_data['feed_now'] = {
+                        "valid": 1,
+                        "amount": float(request.form.get('feed_now_amount'))
+                    }
+
         feeds_data['autodispense'] = 1 if 'autodispense' in request.form else 0
 
         write_feeds(feeds_data)
         return redirect(url_for('index'))
 
-    return render_template('index.html', feeds=feeds_data['feeds'], autodispense=feeds_data['autodispense'])
+    return render_template('index.html', feeds=feeds_data['feeds'], autodispense=feeds_data['autodispense'], feed_now=feeds_data.get('feed_now', {'valid': 0, 'amount': 0}))
 
 if __name__ == '__main__':
     app.run(debug=True)

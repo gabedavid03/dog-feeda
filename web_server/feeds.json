@@ -9,10 +9,8 @@
         }
     ],
     "autodispense": 0,
-    "feed_now": [
-        {
-            "valid": 0,
-            "amount": 1
-        }
-    ]
+    "feed_now": {
+        "valid": 1,
+        "amount": 1.0
+    }
 }
