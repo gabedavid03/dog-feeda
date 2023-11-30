@@ -35,23 +35,42 @@ def validate_feed_time() -> int:
     return 0
 
 def reset_completed() -> None:
-    with open('../web_server/params.json', 'r') as file:
-        params = json.load(file)
-    for feed in params['feeds']:
-        feed['completed'] = 0
-    with open('../web_server/params.json', 'w') as file:
-        json.dump(params, file, indent=4)
+    est = pytz.timezone('America/Toronto')
+    utc_now = datetime.utcnow()
+    current_time = utc_now.astimezone(est)
+    midnight_str = '24:00'
+    midnight = datetime.strptime(midnight_str, "%H:%M").time()
+    if current_time == midnight:
+        with open('../web_server/params.json', 'r') as file:
+            params = json.load(file)
+        for feed in params['feeds']:
+            feed['completed'] = 0
+        with open('../web_server/params.json', 'w') as file:
+            json.dump(params, file, indent=4)
+        return
     return
 
-def autofeed(feed_number: int) -> None:
+def autofeed() -> None:
+    est = pytz.timezone('America/Toronto')
+    utc_now = datetime.utcnow()
+    current_time = utc_now.astimezone(est)
+
     with open('../web_server/params.json', 'r') as file:
         params = json.load(file)
-    if params['feeds'][f'{feed_number}']['completed'] == 0:
-        if params['autodispense'] == 1:
-            cycles  = retrieve_cycles(feed_number)
-            send_feed(COMPORT, cycles)
-    else: 
-        return
+
+    for feed in params['feeds']:
+        end_time_str = feed['end_time']
+        end_time = datetime.strptime(end_time_str, "%H:%M").time()
+        if current_time == end_time:
+            if feed['completed'] == 0:
+                if params['autodispense'] == 1:
+                    cycles  = retrieve_cycles(feed['feed_number'])
+                    send_feed(COMPORT, cycles)
+            else: 
+                return
+        else:
+            continue
+    return
     
 def feed_now() -> None:
     with open('../web_server/params.json', 'r') as file:
@@ -61,6 +80,9 @@ def feed_now() -> None:
     else:
         cycles = params['feed_now']['amount']
         send_feed(COMPORT, cycles)
+        params['feed_now']['valid'] == 0
+        with open('../web_server/params.json', 'w') as file:
+            json.dump(params, file, indent=4)
         return
 
 def send_feed(comport: str, cycles: float) -> None:
