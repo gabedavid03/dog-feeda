@@ -18,14 +18,27 @@ def validate_feed() -> int:
 
     with open('../web_server/params.json', 'r') as file:
         params = json.load(file)
-        for feed in params['feeds']:
-            if feed['completed']:
-                continue
-            start_time = feed['start_time']
-            end_time = feed['end_time']
-            if start_time <= current_time <= end_time:
-                return feed['feed_number']
-        return 0
+    for feed in params['feeds']:
+        if feed['completed']==1:
+            continue
+        start_time_str = feed['start_time']
+        end_time_str = feed['end_time']
+        start_time = datetime.strptime(start_time_str, "%H:%M").time()
+        end_time = datetime.strptime(end_time_str, "%H:%M").time()
+        if start_time <= current_time <= end_time:
+            feed['completed'] = 1
+            with open('../web_server/params.json', 'w') as file:
+                json.dump(params, file, indent=4)
+            return feed['feed_number']
+    return 0
+
+def reset_completed() -> None:
+    with open('../web_server/params.json', 'r') as file:
+        params = json.load(file)
+    for feed in params['feeds']:
+        feed['completed'] = 0
+    with open('../web_server/params.json', 'w') as file:
+        json.dump(params, file, indent=4)
 
 def send_feed(comport: str):
     cycles = retrieve_cycles()
