@@ -40,12 +40,13 @@ def reset_completed() -> None:
     current_time = utc_now.astimezone(est)
     midnight_str = '24:00'
     midnight = datetime.strptime(midnight_str, "%H:%M").time()
-    
+
     if current_time == midnight:
         with open('../web_server/params.json', 'r') as file:
             params = json.load(file)
         for feed in params['feeds']:
             feed['completed'] = 0
+        params["feeds_today"] = 0
         with open('../web_server/params.json', 'w') as file:
             json.dump(params, file, indent=4)
         return
@@ -100,4 +101,7 @@ def send_feed(comport: str, cycles: float) -> None:
             return
     line = ser.readline().decode('utf-8').rstrip()
     print(f"{line}")
+    with open('../web_server/params.json', 'r') as file:
+        params = json.load(file)
+    params["feeds_today"] = int(params["feeds_today"]) + 1
     return
