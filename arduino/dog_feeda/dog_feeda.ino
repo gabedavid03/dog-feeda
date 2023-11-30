@@ -55,6 +55,7 @@ void water(){
       t = millis();
   }
 }
+}
 
 void feed(int rotations){
   int rotationCount = 0;
