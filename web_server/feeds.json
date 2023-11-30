@@ -1,4 +1,26 @@
 {
-    "feeds": [],
+    "feeds": [
+        {
+            "feed_number": 1,
+            "start_time": "10:00",
+            "end_time": "13:00",
+            "amount": 1.0,
+            "completed": 1
+        },
+        {
+            "feed_number": 2,
+            "start_time": "12:00",
+            "end_time": "16:00",
+            "amount": 2.0,
+            "completed": 1
+        },
+        {
+            "feed_number": 3,
+            "start_time": "02:00",
+            "end_time": "03:00",
+            "amount": 2.0,
+            "completed": 0
+        }
+    ],
     "autodispense": 0
 }
