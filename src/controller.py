@@ -1,16 +1,31 @@
 import serial
+from datetime import datetime
 import time
 import json
+import pytz
 
-def retrieve_cycles() -> float:
+def retrieve_cycles(feed_number) -> float:
     with open('../web_server/params.json', 'r') as file:
         params = json.load(file)
-        amount_per_feed = float(params['AMOUNT_PER_FEED'])
+        amount_per_feed = params['feeds'][f'{feed_number}']['amount']
         cycles = int(amount_per_feed*4)
         return cycles
 
-def validate_feed() -> bool:
-    return
+def validate_feed() -> int:
+    est = pytz.timezone('America/Toronto')
+    utc_now = datetime.utcnow()
+    current_time = utc_now.astimezone(est)
+
+    with open('../web_server/params.json', 'r') as file:
+        params = json.load(file)
+        for feed in params['feeds']:
+            if feed['completed']:
+                continue
+            start_time = feed['start_time']
+            end_time = feed['end_time']
+            if start_time <= current_time <= end_time:
+                return feed['feed_number']
+        return 0
 
 def send_feed(comport: str):
     cycles = retrieve_cycles()
