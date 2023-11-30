@@ -1,10 +1,6 @@
 import cv2
 import time
 from controller import send_feed, feed_now, reset_completed, autofeed, COMPORT, validate_feed_time, retrieve_cycles
-from picamera.array import PiRGBArray 
-from picamera import PiCamera 
-import cv2 
-
 
 #opencv DNN variables
 net = cv2.dnn.readNet("dnn_model/yolov4-tiny.weights", "dnn_model/yolov4-tiny.cfg")
@@ -18,15 +14,16 @@ with open("dnn_model/classes.txt", "r") as file_object:
         class_name = class_name.strip()
         classes.append(class_name)
 
-# initialize PiCamera
-camera = PiCamera()
-camera.resolution = (320, 320)
-camera.framerate = 32
-rawCapture = PiRGBArray(camera, size=(320, 320))
+# initialize camera with OpenCV
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
 
 def object_detection() -> None:
-    for capture in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-        image = capture.array
+    while True:
+        ret, image = cap.read()
+        if not ret:
+            break
 
         # Object detection
         class_ids, scores, bboxes = model.detect(image)
@@ -39,10 +36,9 @@ def object_detection() -> None:
                 dog_detected = True
                 isValid(dog_detected)
 
+        # For headless operation, remove cv2.imshow and cv2.waitKey
         cv2.imshow("Frame", image)
         key = cv2.waitKey(1) & 0xFF
-        rawCapture.truncate(0)
-
         if key == ord("q"):
             break
 
@@ -88,5 +84,5 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
     finally:
-        camera.close()  # Properly close the camera resource
+        cap.release()  # Release the camera resource
         cv2.destroyAllWindows()  # Close all OpenCV windows
