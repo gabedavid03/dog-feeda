@@ -1,33 +1,48 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import json
-# import serial
 
 app = Flask(__name__)
-# ser = serial.Serial('/dev/ttyAMC0', 9600)  # Change port and baud rate accordingly
+
+# Path to the JSON file where feed details are stored
+JSON_FILE_PATH = 'feeds.json'
+
+def read_feeds():
+    try:
+        with open(JSON_FILE_PATH, 'r') as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"feeds": [], "autodispense": 0}
+
+def write_feeds(data):
+    with open(JSON_FILE_PATH, 'w') as file:
+        json.dump(data, file, indent=4)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if request.method == 'POST': 
-        feeds_per_day = request.form.get('times_per_day')
-        amount_per_feed = request.form.get('amount_per_time')
+    if request.method == 'POST':
+        feeds_data = read_feeds()
         
-        # Send over serial
-        # ser.write(f"{times_per_day}, {amount_per_time}\n".encode())\
-        with open('params.json', 'r') as file:
-            try:
-                params = json.load(file)
-            except json.JSONDecodeError:
-                params = {}
-            params['FEEDS_PER_DAY'] = feeds_per_day
-            params['AMOUNT_PER_FEED'] = amount_per_feed
+        if 'delete' in request.form:
+            feed_number_to_delete = int(request.form.get('delete'))
+            feeds_data['feeds'] = [feed for feed in feeds_data['feeds'] if feed['feed_number'] != feed_number_to_delete]
+        
+        elif 'add_feed' in request.form:
+            new_feed = {
+                "feed_number": len(feeds_data['feeds']) + 1,
+                "start_time": request.form.get('start_time'),
+                "end_time": request.form.get('end_time'),
+                "amount": float(request.form.get('amount'))
+            }
+            feeds_data['feeds'].append(new_feed)
+        
+        feeds_data['autodispense'] = 1 if 'autodispense' in request.form else 0
+        
+        write_feeds(feeds_data)
+        
+        return redirect(url_for('index'))
 
-        with open('params.json', 'w') as file:
-            json.dump(params, file, indent=4)        
-
-    return render_template('index.html')
-
-def run_server():
-    app.run(host='0.0.0.0', port=5000)
+    feeds_data = read_feeds()
+    return render_template('index.html', feeds=feeds_data['feeds'], autodispense=feeds_data['autodispense'])
 
 if __name__ == '__main__':
-    run_server()
+    app.run(debug=True)

@@ -2,86 +2,128 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4+n1zQ2H7zzFNeQp1zsgTiC+J5s5IO5b5V9VCbCAcYDcLqzpZGZ9sAa3ePuFg9p2" crossorigin="anonymous">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-  <title>Dog Feeder</title>
+  <title>Automatic Dog Feeder Scheduler</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #e2f1f8;
-      font-family: 'Arial', sans-serif;
+      background-color: #007bff; /* Blue background */
+      font-family: 'Open Sans', sans-serif;
     }
     .container {
-      margin-top: 50px;
+      margin-top: 30px;
+      color: #fff; /* White text color */
+      max-width: 900px;
+    }
+    .card {
+      background-color: #127BDD; /* Slightly darker blue for card background */
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+    .feed-item {
+      background-color: #58AFFF; /* Lighter shade of blue for boxes */
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.3s ease-in-out;
+    }
+    .feed-item:hover {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
     .dog-image {
-      max-height: 250px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .form-container {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      font-weight: bold;
-      color: #333;
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       margin-bottom: 20px;
     }
     .form-label {
-      font-weight: bold;
-      color: #555;
+      font-weight: 600;
     }
     .btn-primary {
-      background-color: #4caf50;
+      background-color: #FFC107; /* Modern yellow accent */
       border: none;
-      color: white;
       padding: 10px 20px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 4px 2px;
-      transition-duration: 0.4s;
-      cursor: pointer;
-      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
     }
     .btn-primary:hover {
-      background-color: white;
-      color: #4caf50;
-      border: 1px solid #4caf50;
+      background-color: #FFB300; /* Darker yellow on hover */
+    }
+    .btn-danger {
+      transition: background-color 0.3s ease;
+    }
+    .btn-danger:hover {
+      background-color: #dc3545; /* Darker red on hover */
+    }
+    .form-check-label {
+      font-weight: 400;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-
   <div class="container">
-    <div class="row">
-      <div class="col-md-6 d-flex align-items-center justify-content-center">
-        <img src="{{ url_for('static', filename='dog.png') }}" alt="Cute Dog" class="dog-image img-fluid">
-      </div>
-      <div class="col-md-6">
-        <div class="form-container">
-          <h1>Set Dog Feeding Schedule</h1>
-          <form method="post" action="/">
-            <div class="mb-3">
-              <label for="times_per_day" class="form-label">Times Per Day</label>
-              <input type="number" id="times_per_day" name="times_per_day" class="form-control" min="1" required>
-            </div>
-            <div class="mb-3">
-              <label for="amount_per_time" class="form-label">Amount Per Time (cups)</label>
-              <input type="number" step="0.5" id="amount_per_time" name="amount_per_time" class="form-control" min="0.5" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </form>
-        </div>
-      </div>
+    <div class="text-center">
+      <h1>Dog Feeder Schedule</h1>
+      <img src="{{ url_for('static', filename='dog.png') }}" alt="Dog" class="dog-image">
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybBm5DPLNVMTi+JHvh9JNhq8hFNxw3L3wW92O2sv6rS1zBO0I" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-7YwV3CfX/t3sSKCSmVU8KMEeuIW1eEz3W5K5qMv7OG5f1v3MSR7fbfE5+da5H4Q6" crossorigin="anonymous"></script>
+    <div class="card">
+      <!-- Add Feed Form -->
+      <form method="post" action="/">
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="start_time" class="form-label">Start Time</label>
+            <input type="time" class="form-control" id="start_time" name="start_time" required>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="end_time" class="form-label">End Time</label>
+            <input type="time" class="form-control" id="end_time" name="end_time" required>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="amount" class="form-label">Amount (cups)</label>
+            <input type="number" class="form-control" id="amount" name="amount" step="0.1" required>
+          </div>
+        </div>
+        <button type="submit" name="add_feed" class="btn btn-primary">Add Feed</button>
+      </form>
+    </div>
+
+
+    <!-- Auto-Dispense Checkbox -->
+    <div class="card">
+      <form method="post" action="/">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="autodispense" name="autodispense" value="1" {% if autodispense %}checked{% endif %}>
+          <label class="form-check-label" for="autodispense">Auto dispense at end of feed period</label>
+        </div>
+        <button type="submit" class="btn btn-secondary">Update Auto-Dispense</button>
+      </form>
+    </div>
+
+
+    <!-- Current Feeds List -->
+    <div>
+      {% for feed in feeds %}
+      <div class="feed-item">
+        <p>Feed #{{ feed.feed_number }}: {{ feed.start_time }} to {{ feed.end_time }}, Amount: {{ feed.amount }} cups</p>
+        <!-- Delete Button for each Feed -->
+        <form method="post" action="/">
+          <input type="hidden" name="delete" value="{{ feed.feed_number }}">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
